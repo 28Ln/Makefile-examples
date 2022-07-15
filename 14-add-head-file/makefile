@@ -1,0 +1,103 @@
+#.PHONY:all clean\
+MKDIR=mkdir\
+RM=rm\
+RMFLAGS=-fr\
+CC=gcc\
+EXE=test\
+DIRS=objs exes\
+SRCS=$(wildcard *.c)\
+OBJS=$(SRCS:.c=.o)\
+all:$(DIRS) $(EXE)\
+$(DIRS):\
+	$(MKDIR) $@\
+$(EXE):$(OBJS)\
+	$(CC) -o $@ $^\
+%.o:%.c\
+	$(CC) -o $@ -c $^\
+clean:\
+	$(RM) $(RMFLAGS) $(DIRS) $(EXE) $(OBJS)
+
+
+#.PHONY:all clean\
+MKDIR=mkdir\
+RM=rm\
+RMFLAGS=-fr\
+CC=gcc\
+DIR_OBJS=objs\
+DIR_EXE=exes\
+DIRS=$(DIR_OBJS) $(DIR_EXE)\
+EXE=test\
+EXE:=$(addprefix $(DIR_EXE)/, $(EXE))\
+SRCS=$(wildcard *.c)\
+OBJS=$(SRCS:.c=.o)\
+OBJS:=$(addprefix $(DIR_OBJS)/, $(OBJS))\
+all:$(DIRS) $(EXE)\
+$(DIRS):\
+	$(MKDIR) $@\
+$(EXE):$(OBJS)\
+	$(CC) -o $@ $^\
+$(DIR_OBJS)/%.o:%.c\
+	$(CC) -o $@ -c $^\
+clean:\
+	$(RM) $(RMFLAGS) $(DIRS)
+
+
+#.PHONY:all clean\
+MKDIR=mkdir\
+RM=rm\
+RMFLAGS=-fr\
+CC=gcc\
+DIR_OBJS=objs\
+DIR_EXE=exes\
+DIRS=$(DIR_OBJS) $(DIR_EXE)\
+EXE=test\
+EXE:=$(addprefix $(DIR_EXE)/, $(EXE))\
+SRCS=$(wildcard *.c)\
+OBJS=$(SRCS:.c=.o)\
+OBJS:=$(addprefix $(DIR_OBJS)/, $(OBJS))\
+all:$(DIRS) $(EXE)\
+$(DIRS):\
+	$(MKDIR) $@\
+$(EXE):$(OBJS)\
+	$(CC) -o $@ $^\
+$(DIR_OBJS)/%.o:%.c foo.h\
+	$(CC) -o $@ -c $<\
+clean:\
+	$(RM) $(RMFLAGS) $(DIRS)
+
+
+.PHONY:all clean
+MKDIR=mkdir
+RM=rm
+RMFLAGS=-fr
+CC=gcc
+ 
+DIR_OBJS=objs
+DIR_EXE=exes
+DIR_DEPS=deps
+DIRS=$(DIR_OBJS) $(DIR_EXE) $(DIR_DEPS)
+EXE=test
+EXE:=$(addprefix $(DIR_EXE)/, $(EXE))
+SRCS=$(wildcard *.c)
+OBJS=$(SRCS:.c=.o)
+OBJS:=$(addprefix $(DIR_OBJS)/, $(OBJS))
+DEPS = $(SRCS:.c=.dep)
+DEPS := $(addprefix $(DIR_DEPS)/, $(DEPS))
+ 
+all:$(DIRS) $(DEPS) $(EXE)
+ 
+$(DIRS):
+	$(MKDIR) $@
+$(EXE):$(OBJS)
+	$(CC) -o $@ $^
+$(DIR_OBJS)/%.o:%.c
+	$(CC) -o $@ -c $^
+$(DIR_DEPS)/%.dep: %.c
+	@echo "Making $@ ..."
+	@set -e; \
+	$(RM) $(RMFLAGS) $@.tmp ; \
+	$(CC) -E -MM $^ > $@.tmp ; \
+	sed 's,\(.*\)\.o[ :]*,objs/\1.o: ,g' < $@.tmp > $@ ; \
+	$(RM) $(RMFLAGS) $@.tmp
+clean:
+	$(RM) $(RMFLAGS) $(DIRS)
